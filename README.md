@@ -22,7 +22,7 @@
       <a href="https://github.com/shinseokwoo"><img height="120px" width="120px" src="https://avatars.githubusercontent.com/shinseokwoo"/></a>
     </th>
     <th align="center" width="150px">
-      <a href="https://github.com/aaajjnnn"><img height="120px" width="120px" src="https://avatars.githubusercontent.com/aaajjnnn"/></a>
+      <a href="https://github.com/aaajinnn"><img height="120px" width="120px" src="https://avatars.githubusercontent.com/aaajinnn"/></a>
     </th>
     <th align="center" width="150px">
       <a href="https://github.com/lee-JunR"><img height="120px" width="120px" src="https://avatars.githubusercontent.com/lee-JunR"/></a>
@@ -33,7 +33,7 @@
     <td align="center"><a href="https://github.com/hungrybugs"><strong>노승협</strong></a></td>
     <td align="center"><a href="https://github.com/eukkki210"><strong>류승기</strong></a></td>
     <td align="center"><a href="https://github.com/shinseokwoo"><strong>신석우</strong></a></td>
-    <td align="center"><a href="https://github.com/aaajjnnn"><strong>신아진</strong></a></td>
+    <td align="center"><a href="https://github.com/aaajinnn"><strong>신아진</strong></a></td>
     <td align="center"><a href="https://github.com/lee-JunR"><strong>이준렬</strong></a></td>
   </tr>
 </table>
