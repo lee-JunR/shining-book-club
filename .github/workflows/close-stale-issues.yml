@@ -1,0 +1,36 @@
+# 워크플로우의 이름
+name: 오래된 이슈 닫기
+
+# 워크플로우 실행 시점 설정
+on:
+  schedule:
+    # cron 스케줄 표현식: 매일 자정(UTC 기준)에 실행
+    - cron: '0 0 * * *'
+
+# 실행할 작업(job) 목록
+jobs:
+  # '오래된 이슈 닫기' 작업
+  close_old_issues:
+    # 작업이 실행될 환경
+    runs-on: ubuntu-latest
+    # 작업의 단계(step) 목록
+    steps:
+      # 단계의 이름
+      - name: 7일 이상 응답 없는 이슈 닫기
+        # 사용할 액션 (actions/stale@v6)
+        uses: actions/stale@v6
+        # 액션에 전달할 파라미터
+        with:
+          # 저장소(repository)에 접근하기 위한 토큰
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          # 'stale' 라벨을 붙이기 전까지의 비활성 기간 (일)
+          days-before-stale: 7
+          # 'stale' 상태가 되었을 때 이슈에 남길 메시지
+          stale-issue-message: "이 이슈는 7일 동안 활동이 없어 곧 자동으로 닫힐 예정입니다."
+          # 'stale' 상태가 된 이슈에 붙일 라벨 이름
+          stale-issue-label: "stale"
+          # 'stale' 라벨이 붙은 후 이슈를 닫기까지의 대기 기간 (일)
+          # 0으로 설정하면 'stale' 라벨이 붙자마자 바로 닫힙니다.
+          days-before-close: 0
+          # 이슈를 닫을 때 남길 메시지
+          close-issue-message: "7일 동안 활동이 없어 이슈를 닫습니다."
