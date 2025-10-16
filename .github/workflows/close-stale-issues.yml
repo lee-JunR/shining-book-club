@@ -6,41 +6,40 @@ on:
   schedule:
     # cron 스케줄 표현식: 매일 자정(UTC 기준)에 실행
     - cron: '0 0 * * *'
-  # (선택 사항) 수동으로 실행할 수 있도록 버튼 추가
+  # 수동으로 실행할 수 있도록 버튼 추가
   workflow_dispatch:
 
 # 실행할 작업(job) 목록
 jobs:
-  # '오래된 이슈 닫기' 작업
   close_old_issues:
     # 작업이 실행될 환경
     runs-on: ubuntu-latest
     
-    # ★★★★★ [수정됨] 이슈/PR에 대한 쓰기 권한 부여 ★★★★★
+    # 이슈/PR에 대한 쓰기 권한 부여
     permissions:
       issues: write
       pull-requests: write
 
     # 작업의 단계(step) 목록
     steps:
-      # 단계의 이름
-      - name: 7일 이상 응답 없는 이슈 닫기
-        # [개선] 사용할 액션을 최신 버전으로 변경
+      - name: 오래된 이슈 관리
+        # 최신 버전의 액션 사용
         uses: actions/stale@v9
-        # 액션에 전달할 파라미터
         with:
-          # 저장소(repository)에 접근하기 위한 토큰
+          # 저장소 접근 토큰
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
+
+          # 'example' 라벨이 붙은 이슈는 제외
+          exempt-issue-labels: "example"
+
           # 'stale' 라벨을 붙이기 전까지의 비활성 기간 (일)
           days-before-stale: 7
+          # 'stale' 라벨이 붙은 후 이슈를 닫기까지의 대기 기간 (일)
+          days-before-close: 0 # 0으로 설정 시 stale 라벨이 붙자마자 바로 닫힘
+          
           # 'stale' 상태가 되었을 때 이슈에 남길 메시지
-          stale-issue-message: "이 이슈는 7일 동안 활동이 없어 비활성 상태로 전환됩니다. 추가 활동이 없으면 곧 자동으로 닫힙니다."
+          stale-issue-message: "이 이슈는 7일 동안 활동이 없어 비활성 상태로 전환됩니다."
           # 'stale' 상태가 된 이슈에 붙일 라벨 이름
           stale-issue-label: "stale"
-          
-          # [개선 제안] 'stale' 라벨이 붙은 후 7일 뒤에 이슈를 닫도록 설정
-          # 즉시 닫기를 원하시면 이 값을 0으로 변경하세요.
-          days-before-close: 7 
-          
           # 이슈를 닫을 때 남길 메시지
           close-issue-message: "추가 활동이 없어 이슈를 자동으로 닫습니다."
