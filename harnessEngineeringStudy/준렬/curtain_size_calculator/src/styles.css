@@ -1,0 +1,882 @@
+:root {
+  --accent: #2f7d6d;
+  --accent-soft: #e7f4ef;
+  --warning: #f26b4f;
+  --line: #e5e8eb;
+  --text: #191f28;
+  --subtle: #6b7684;
+  --surface: #ffffff;
+  --surface-alt: #f7f8fa;
+  font-family:
+    Inter, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", sans-serif;
+  color: var(--text);
+  background: var(--surface-alt);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--surface-alt);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.app {
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.workspace {
+  width: min(100%, 980px);
+  margin: 0 auto;
+}
+
+.topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0 20px;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  color: #4e5968;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+h1 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.24;
+}
+
+.topActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.tabsSurface,
+.panelSurface,
+.resultCard,
+.helpIntro,
+.helpBlock,
+.blindOverview,
+.blindWindowRow,
+.blindBreakdownItem {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.tabsSurface,
+.panelSurface {
+  padding: 16px;
+}
+
+.tabsSurface {
+  margin-bottom: 16px;
+}
+
+.inputBand {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+  gap: 20px;
+  align-items: stretch;
+}
+
+.panelHeader {
+  margin-bottom: 16px;
+}
+
+.panelHeader h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+  line-height: 1.3;
+}
+
+.panelHeader p {
+  margin: 0;
+  color: var(--subtle);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.fieldStack {
+  display: grid;
+  gap: 14px;
+}
+
+.visualPanel {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 360px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.roomDiagram {
+  position: relative;
+  width: min(92%, 460px);
+  height: 330px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: #fafafa;
+  overflow: hidden;
+}
+
+.roomDiagram::after {
+  content: "";
+  position: absolute;
+  inset: 40px;
+  z-index: 1;
+  border-left: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+}
+
+.ceilingLabel,
+.floorLabel,
+.leftWallLabel,
+.rightWallLabel {
+  position: absolute;
+  z-index: 2;
+  color: #4e5968;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.ceilingLabel,
+.floorLabel {
+  left: 0;
+  right: 0;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: var(--surface);
+}
+
+.ceilingLabel {
+  top: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.floorLabel {
+  bottom: 0;
+  border-top: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.leftWallLabel,
+.rightWallLabel {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.leftWallLabel {
+  left: 18px;
+}
+
+.rightWallLabel {
+  right: 18px;
+}
+
+.curtainBox {
+  position: absolute;
+  top: 40px;
+  left: 62px;
+  right: 62px;
+  z-index: 3;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  color: #333d4b;
+  background: #d1d6db;
+  border-bottom: 1px dashed #8b95a1;
+  box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.04);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.pointBadge {
+  position: absolute;
+  top: 112px;
+  left: 50%;
+  z-index: 8;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.diagramWindow {
+  position: absolute;
+  inset: 100px 72px 54px;
+  z-index: 2;
+  display: flex;
+  border: 4px solid #ffffff;
+  outline: 2px solid #c7d8d2;
+  background: #d9eee6;
+}
+
+.diagramWindow span {
+  flex: 1;
+  border-right: 2px solid #c7d8d2;
+}
+
+.diagramWindow span:last-child {
+  border-right: 0;
+}
+
+.marker {
+  position: absolute;
+  z-index: 5;
+  background: var(--warning);
+}
+
+.diagramWidth,
+.diagramHeight {
+  position: absolute;
+  z-index: 7;
+  color: var(--text);
+  background: var(--text);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.diagramWidth {
+  top: 142px;
+  left: 40px;
+  right: 40px;
+  height: 2px;
+}
+
+.diagramHeight {
+  top: 40px;
+  right: 92px;
+  bottom: 40px;
+  width: 2px;
+}
+
+.markerHLeft,
+.markerHRight {
+  top: 124px;
+  width: 3px;
+  height: 38px;
+}
+
+.markerHLeft {
+  left: 40px;
+}
+
+.markerHRight {
+  right: 40px;
+}
+
+.markerVTop,
+.markerVBottom {
+  right: 72px;
+  width: 42px;
+  height: 3px;
+}
+
+.markerVTop {
+  top: 40px;
+}
+
+.markerVBottom {
+  bottom: 40px;
+}
+
+.diagramWidth::before,
+.diagramWidth::after,
+.diagramHeight::before,
+.diagramHeight::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--text);
+  border-width: 0 2px 2px 0;
+}
+
+.diagramWidth::before {
+  top: -4px;
+  left: 0;
+  transform: rotate(135deg);
+}
+
+.diagramWidth::after {
+  top: -4px;
+  right: 0;
+  transform: rotate(-45deg);
+}
+
+.diagramHeight::before {
+  top: 0;
+  left: -4px;
+  transform: rotate(-135deg);
+}
+
+.diagramHeight::after {
+  bottom: 0;
+  left: -4px;
+  transform: rotate(45deg);
+}
+
+.diagramWidth span,
+.diagramHeight span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transform: translate(-50%, -50%);
+  padding: 5px 10px 5px 5px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: 0 8px 18px rgba(51, 61, 75, 0.16);
+}
+
+.diagramWidth strong,
+.diagramHeight strong {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--text);
+  color: #fff;
+  font-size: 12px;
+}
+
+.resultGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.blindResultLayout {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.9fr) minmax(0, 1.1fr);
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.resultCard {
+  min-height: 180px;
+  padding: 20px;
+}
+
+.resultCardWithControl {
+  display: flex;
+  flex-direction: column;
+}
+
+.resultLabel {
+  margin: 0 0 8px;
+  color: #4e5968;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.resultCard strong {
+  display: block;
+  font-size: 32px;
+  line-height: 1.18;
+}
+
+.resultCard span,
+.resultCard small {
+  display: block;
+  margin-top: 8px;
+  color: var(--subtle);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.switchRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: auto;
+  padding-top: 18px;
+}
+
+.switchTitle {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.switchRow p {
+  margin: 4px 0 0;
+  color: var(--subtle);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.blindOverview {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 16px;
+}
+
+.blindOverviewHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.blindOverviewHeader strong {
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.blindOverviewHeader span {
+  color: #8b95a1;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.blindOverviewWall {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  min-height: 128px;
+  padding: 18px 48px 18px 18px;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, #fff 0 18px, transparent 18px),
+    linear-gradient(90deg, #f2f4f6 0 26px, transparent 26px calc(100% - 26px), #f2f4f6 calc(100% - 26px)),
+    #f9fafb;
+}
+
+.blindHeightMarker {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  bottom: 18px;
+  width: 2px;
+  background: var(--text);
+}
+
+.blindHeightMarker::before,
+.blindHeightMarker::after {
+  content: "";
+  position: absolute;
+  left: -4px;
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--text);
+  border-width: 0 2px 2px 0;
+}
+
+.blindHeightMarker::before {
+  top: 0;
+  transform: rotate(-135deg);
+}
+
+.blindHeightMarker::after {
+  bottom: 0;
+  transform: rotate(45deg);
+}
+
+.blindHeightMarker span {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  padding: 4px 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 900;
+  box-shadow: 0 8px 18px rgba(51, 61, 75, 0.14);
+}
+
+.blindOverviewPane {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 52px;
+  border: 2px solid #9fc7dc;
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.62), transparent 42%), #cfeaf7;
+  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.75);
+}
+
+.blindOverviewPane strong {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--text);
+  color: #fff;
+  font-size: 13px;
+}
+
+.blindAllowanceMark {
+  position: absolute;
+  top: 8px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: var(--warning);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.blindAllowanceMark.isLeft {
+  left: 8px;
+}
+
+.blindAllowanceMark.isRight {
+  right: 8px;
+}
+
+.blindHeightNote {
+  justify-self: start;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.blindWindowList {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.blindWindowRow {
+  display: grid;
+  grid-template-columns: minmax(170px, 0.9fr) repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: 12px;
+  padding: 14px;
+  background: #f9fafb;
+}
+
+.blindWindowIntro {
+  display: grid;
+  gap: 8px;
+}
+
+.blindWindowIntro > strong {
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.blindWindowIntro > span {
+  color: #8b95a1;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.blindMiniDiagram {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.blindMiniHeader {
+  font-size: 12px;
+  font-weight: 900;
+  color: #4e5968;
+}
+
+.blindMiniWall {
+  display: grid;
+  gap: 4px;
+  min-height: 54px;
+  padding: 6px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #eef6fb;
+}
+
+.blindMiniWall span {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  border: 1px solid #a8cfe3;
+  border-radius: 5px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.72), transparent 44%), #d9eef8;
+  color: transparent;
+  font-size: 12px;
+  font-weight: 900;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.72);
+}
+
+.blindMiniWall span.isActive {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.42), transparent 42%), #5aa9cf;
+  border-color: #529dc3;
+  color: #fff;
+}
+
+.blindMiniBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.blindMiniAllowance,
+.blindMiniHeight {
+  padding: 3px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.blindMiniAllowance {
+  background: #f2f4f6;
+  color: #8b95a1;
+}
+
+.blindMiniAllowance.isChecked {
+  background: var(--warning);
+  color: #fff;
+}
+
+.blindMiniHeight {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  grid-column: 1 / -1;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.checkboxRow span {
+  color: #333d4b;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.blindBreakdown {
+  display: grid;
+  gap: 10px;
+}
+
+.blindBreakdownItem {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 4px 12px;
+  align-items: center;
+  padding: 14px;
+}
+
+.blindBreakdownItem strong {
+  grid-row: span 2;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.blindBreakdownItem span {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.blindBreakdownItem small {
+  color: #8b95a1;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.helpPage {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.helpIntro {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 0.95fr) minmax(300px, 1.05fr);
+  align-items: center;
+  overflow: hidden;
+  padding: 0;
+  background: linear-gradient(135deg, rgba(47, 125, 109, 0.1), rgba(242, 107, 79, 0.08)), var(--surface);
+}
+
+.helpIntroCopy {
+  padding: 28px;
+}
+
+.helpBadge {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.helpIntro h2,
+.helpBlock h2 {
+  margin: 14px 0 10px;
+  font-size: 20px;
+  line-height: 1.35;
+}
+
+.helpIntro p,
+.helpBlock p {
+  margin: 0;
+  color: #4e5968;
+  font-size: 15px;
+  line-height: 1.58;
+}
+
+.helpIntro p + p {
+  margin-top: 8px;
+}
+
+.helpIntro img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+  object-fit: cover;
+}
+
+.helpBlock {
+  padding: 22px;
+}
+
+.formula {
+  margin: 14px 0;
+  padding: 14px;
+  border-radius: 8px;
+  background: #f2f4f6;
+  color: #333d4b;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+@media (width <= 820px) {
+  .app {
+    padding: 16px;
+  }
+
+  .topbar,
+  .inputBand,
+  .resultGrid,
+  .blindResultLayout,
+  .helpPage,
+  .helpIntro {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar {
+    display: grid;
+  }
+
+  .topActions {
+    justify-content: flex-start;
+  }
+
+  .blindWindowRow {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .blindWindowIntro,
+  .checkboxRow {
+    grid-column: 1 / -1;
+  }
+
+  .helpIntroCopy {
+    padding: 20px 20px 0;
+  }
+
+  .helpIntro img {
+    min-height: 220px;
+  }
+}
+
+@media (width <= 480px) {
+  .app {
+    padding: 12px;
+  }
+
+  h1 {
+    font-size: 25px;
+  }
+
+  .tabsSurface,
+  .panelSurface,
+  .resultCard,
+  .helpBlock {
+    padding: 14px;
+  }
+
+  .visualPanel {
+    min-height: 260px;
+  }
+
+  .roomDiagram {
+    width: 92%;
+  }
+
+  .blindWindowRow,
+  .blindBreakdownItem {
+    grid-template-columns: 1fr;
+  }
+
+  .blindBreakdownItem strong {
+    grid-row: auto;
+  }
+
+  .switchRow {
+    align-items: flex-start;
+  }
+}
