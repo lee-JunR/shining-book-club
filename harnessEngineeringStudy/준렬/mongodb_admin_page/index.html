@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart ATLAS MongoDB Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              atlas: {
+                bg: "#07111f",
+                panel: "#0d1a2c",
+                panel2: "#12233a",
+                line: "rgba(148, 163, 184, 0.18)",
+                text: "#d8e3f0",
+                muted: "#93a4ba",
+                accent: "#58c6ff",
+                ok: "#2dd4bf",
+                warn: "#fbbf24",
+                danger: "#fb7185",
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="bg-atlas-bg text-atlas-text">
+    <div class="absolute inset-0 pointer-events-none overflow-hidden">
+      <div class="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-sky-500/20 blur-3xl"></div>
+      <div class="absolute top-40 right-0 h-[28rem] w-[28rem] rounded-full bg-cyan-500/10 blur-3xl"></div>
+      <div class="absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-amber-400/10 blur-3xl"></div>
+    </div>
+
+    <main class="relative mx-auto flex min-h-screen w-full max-w-[1720px] flex-col gap-4 px-4 py-4 lg:px-6">
+      <header class="glass-card sticky top-4 z-30 flex flex-col gap-4 p-4 shadow-2xl shadow-slate-950/40 backdrop-blur-xl">
+        <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+          <div class="flex flex-wrap items-center gap-3">
+            <div>
+              <p class="text-[11px] uppercase tracking-[0.28em] text-atlas-muted">Smart ATLAS</p>
+              <h1 class="mt-1 text-2xl font-semibold tracking-tight text-white md:text-3xl">MongoDB Admin</h1>
+            </div>
+            <span id="service-badge" class="status-pill status-pill--ok">Connected</span>
+          </div>
+
+          <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+            <div class="mini-metric">
+              <span class="mini-metric__label">선택 Fab</span>
+              <strong id="current-fab-label" class="mini-metric__value">PTA6</strong>
+            </div>
+            <div class="mini-metric">
+              <span class="mini-metric__label">MongoDB</span>
+              <strong id="mongo-status-label" class="mini-metric__value">Connected</strong>
+            </div>
+            <div class="mini-metric">
+              <span class="mini-metric__label">수집기</span>
+              <strong id="collector-status-label" class="mini-metric__value">Running</strong>
+            </div>
+            <div class="mini-metric">
+              <span class="mini-metric__label">사용자</span>
+              <strong id="user-label" class="mini-metric__value">Operator / ops.atlas</strong>
+            </div>
+            <div class="mini-metric">
+              <span class="mini-metric__label">갱신</span>
+              <strong id="clock-label" class="mini-metric__value">--:--:--</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+          <nav id="fab-tabs" class="flex flex-wrap gap-2"></nav>
+          <div class="flex flex-wrap items-center gap-2 text-sm text-atlas-muted">
+            <label class="flex items-center gap-2">
+              <span>자동 갱신</span>
+              <select id="refresh-interval" class="atlas-select w-28">
+                <option value="5">5초</option>
+                <option value="10">10초</option>
+                <option value="30" selected>30초</option>
+                <option value="60">1분</option>
+              </select>
+            </label>
+            <button id="manual-refresh" class="atlas-btn atlas-btn--secondary">수동 새로고침</button>
+            <span id="refresh-note" class="text-xs text-atlas-muted">마지막 갱신: -</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,0.85fr)]">
+        <article class="glass-card p-4">
+          <div class="section-title">
+            <h2>상태 요약</h2>
+            <p>MongoDB, 수집기, 리소스, 수집 지연을 한 화면에서 확인합니다.</p>
+          </div>
+          <div id="summary-grid" class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4"></div>
+        </article>
+
+        <aside class="glass-card p-4">
+          <div class="section-title">
+            <h2>수집기 제어</h2>
+            <p>조회와 별개로 Start, Stop, Restart, 상태 확인을 다룹니다.</p>
+          </div>
+          <div class="mt-4 grid gap-3">
+            <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <p class="text-xs text-atlas-muted">현재 상태</p>
+                  <div class="mt-1 flex items-center gap-2">
+                    <span id="collector-indicator" class="status-dot"></span>
+                    <strong id="collector-state-text" class="text-lg">Running</strong>
+                  </div>
+                </div>
+                <button id="refresh-collector" class="atlas-btn atlas-btn--ghost">상태 새로고침</button>
+              </div>
+            </div>
+
+            <label class="block">
+              <span class="mb-1 block text-xs uppercase tracking-[0.2em] text-atlas-muted">작업 사유</span>
+              <textarea id="collector-reason" rows="3" class="atlas-textarea" placeholder="Stop / Restart 시 권장 사유를 입력하세요."></textarea>
+            </label>
+
+            <div class="grid grid-cols-3 gap-2">
+              <button data-collector-action="start" class="atlas-btn atlas-btn--success">Start</button>
+              <button data-collector-action="stop" class="atlas-btn atlas-btn--danger">Stop</button>
+              <button data-collector-action="restart" class="atlas-btn atlas-btn--warning">Restart</button>
+            </div>
+
+            <div class="rounded-2xl border border-white/10 bg-slate-950/35 p-3 text-sm text-atlas-muted">
+              <p class="font-medium text-slate-200">안전장치</p>
+              <ul class="mt-2 space-y-1">
+                <li>• Stop / Restart 전 확인 모달을 표시합니다.</li>
+                <li>• 작업은 감사 로그에 저장됩니다.</li>
+                <li>• 조회 전용 정책을 유지합니다.</li>
+              </ul>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="glass-card p-4">
+        <div class="section-title">
+          <h2>Grafana 모니터링</h2>
+          <p>Fab별 대시보드와 시간 범위를 동기화합니다.</p>
+        </div>
+        <div class="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)]">
+          <div class="space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div class="flex flex-wrap gap-2 text-sm">
+                <button data-range="15m" class="time-chip">최근 15분</button>
+                <button data-range="1h" class="time-chip">최근 1시간</button>
+                <button data-range="today" class="time-chip">오늘</button>
+                <button data-range="custom" class="time-chip">직접 지정</button>
+              </div>
+              <a id="grafana-detail-link" href="#" target="_blank" rel="noreferrer" class="atlas-btn atlas-btn--ghost">Grafana 상세</a>
+            </div>
+
+            <div id="custom-time-box" class="hidden grid gap-3 md:grid-cols-2">
+              <label class="block">
+                <span class="mb-1 block text-xs uppercase tracking-[0.2em] text-atlas-muted">시작</span>
+                <input id="custom-start" type="datetime-local" class="atlas-input" />
+              </label>
+              <label class="block">
+                <span class="mb-1 block text-xs uppercase tracking-[0.2em] text-atlas-muted">종료</span>
+                <input id="custom-end" type="datetime-local" class="atlas-input" />
+              </label>
+            </div>
+
+            <div class="grid gap-3 lg:grid-cols-2">
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
+                <p class="metric-title">CPU 사용률</p>
+                <div class="mt-2 flex items-end justify-between">
+                  <strong id="cpu-value" class="metric-value">--%</strong>
+                  <span id="cpu-trend" class="metric-trend">+0.0%</span>
+                </div>
+                <div class="metric-bar"><span id="cpu-bar"></span></div>
+              </div>
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
+                <p class="metric-title">Disk 사용률</p>
+                <div class="mt-2 flex items-end justify-between">
+                  <strong id="disk-value" class="metric-value">--%</strong>
+                  <span id="disk-trend" class="metric-trend">+0.0%</span>
+                </div>
+                <div class="metric-bar"><span id="disk-bar"></span></div>
+              </div>
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
+                <p class="metric-title">TPS</p>
+                <div class="mt-2 flex items-end justify-between">
+                  <strong id="tps-value" class="metric-value">--/s</strong>
+                  <span id="tps-trend" class="metric-trend">+0.0%</span>
+                </div>
+                <div class="metric-bar"><span id="tps-bar"></span></div>
+              </div>
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
+                <p class="metric-title">일일 증가량</p>
+                <div class="mt-2 flex items-end justify-between">
+                  <strong id="growth-value" class="metric-value">-- GB</strong>
+                  <span id="growth-trend" class="metric-trend">+0.0%</span>
+                </div>
+                <div class="metric-bar"><span id="growth-bar"></span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-3xl border border-white/10 bg-slate-950/45 p-3">
+            <div class="mb-3 flex items-center justify-between">
+              <div>
+                <p class="text-xs uppercase tracking-[0.2em] text-atlas-muted">Embedded Grafana</p>
+                <h3 id="grafana-title" class="text-lg font-semibold text-white">PTA6 / Overview</h3>
+              </div>
+              <span id="grafana-status" class="status-pill status-pill--ok">Loaded</span>
+            </div>
+            <div id="grafana-frame-wrap" class="grafana-frame-wrap">
+              <iframe
+                id="grafana-frame"
+                title="Grafana dashboard"
+                class="grafana-frame"
+                referrerpolicy="no-referrer"
+              ></iframe>
+            </div>
+            <div id="grafana-fallback" class="hidden rounded-2xl border border-amber-300/20 bg-amber-500/10 p-4 text-sm text-amber-100">
+              <p class="font-medium">Grafana 연결 실패</p>
+              <p class="mt-1 text-amber-50/85">인증 만료 또는 접근 제한이 의심됩니다. 새로고침 후에도 동일하면 직접 이동 링크를 확인하세요.</p>
+              <div class="mt-3 flex flex-wrap gap-2">
+                <button id="grafana-retry" class="atlas-btn atlas-btn--warning">새로고침</button>
+                <a id="grafana-direct-link" href="#" target="_blank" rel="noreferrer" class="atlas-btn atlas-btn--ghost">직접 이동</a>
+              </div>
+            </div>
+            <div class="mt-3 rounded-2xl border border-white/10 bg-white/5 p-3 text-xs text-atlas-muted">
+              주요 패널 클릭 시 상세 Grafana 화면으로 이동하는 동작을 프로토타입에서 재현합니다.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+        <article class="glass-card p-4">
+          <div class="section-title">
+            <h2>쿼리 컨트롤</h2>
+            <p>시간 필터, 로그 레벨, 템플릿, 안전한 조회 전용 쿼리를 관리합니다.</p>
+          </div>
+
+          <div class="mt-4 grid gap-4">
+            <div class="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <p class="section-subtitle">글로벌 시간 필터</p>
+                  <span id="time-summary" class="text-xs text-atlas-muted">최근 15분</span>
+                </div>
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <button data-range="15m" class="time-chip time-chip--small">최근 15분</button>
+                  <button data-range="1h" class="time-chip time-chip--small">최근 1시간</button>
+                  <button data-range="today" class="time-chip time-chip--small">오늘</button>
+                  <button data-range="custom" class="time-chip time-chip--small">직접 지정</button>
+                </div>
+              </div>
+
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
+                <p class="section-subtitle">로그 레벨 퀵 필터</p>
+                <div id="level-filter-group" class="mt-3 flex flex-wrap gap-2"></div>
+              </div>
+            </div>
+
+            <div class="grid gap-3 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
+                <div class="flex items-center justify-between">
+                  <p class="section-subtitle">쿼리 템플릿</p>
+                  <button id="format-json" class="atlas-btn atlas-btn--ghost atlas-btn--xs">JSON 포맷</button>
+                </div>
+                <div id="template-list" class="mt-3 grid gap-2"></div>
+              </div>
+
+              <div class="rounded-2xl border border-white/10 bg-slate-950/55 p-3">
+                <div class="flex items-center justify-between gap-3">
+                  <p class="section-subtitle">쿼리 에디터</p>
+                  <div class="flex flex-wrap gap-2 text-xs text-atlas-muted">
+                    <span class="rounded-full border border-white/10 px-2 py-1">조회 전용</span>
+                    <span class="rounded-full border border-white/10 px-2 py-1">Ctrl/Cmd + Enter</span>
+                  </div>
+                </div>
+                <textarea
+                  id="query-editor"
+                  spellcheck="false"
+                  class="atlas-editor mt-3"
+                  placeholder="MongoDB 조회용 JSON 쿼리를 입력하세요."
+                ></textarea>
+
+                <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
+                  <div class="flex flex-wrap gap-2">
+                    <button id="run-query" class="atlas-btn atlas-btn--primary">실행</button>
+                    <button id="cancel-query" class="atlas-btn atlas-btn--ghost" disabled>취소</button>
+                    <button id="explain-query" class="atlas-btn atlas-btn--secondary">Explain</button>
+                    <button id="download-csv" class="atlas-btn atlas-btn--ghost">CSV 다운로드</button>
+                  </div>
+                  <label class="flex min-w-[220px] items-center gap-2">
+                    <span class="whitespace-nowrap text-xs uppercase tracking-[0.2em] text-atlas-muted">저장명</span>
+                    <input id="saved-query-name" class="atlas-input" placeholder="예: PTA6 ERROR 최근 1시간" />
+                    <button id="save-query" class="atlas-btn atlas-btn--secondary atlas-btn--xs">저장</button>
+                  </label>
+                </div>
+
+                <div id="query-hint" class="mt-3 rounded-2xl border border-cyan-400/15 bg-cyan-400/10 p-3 text-sm text-cyan-100">
+                  최근 15분, 100건 제한, find/aggregate/countDocuments만 허용합니다.
+                </div>
+                <div id="query-message" class="mt-2 text-sm text-atlas-muted"></div>
+              </div>
+            </div>
+
+            <div class="grid gap-3 xl:grid-cols-2">
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
+                <div class="flex items-center justify-between">
+                  <p class="section-subtitle">자주 쓰는 쿼리</p>
+                  <span class="text-xs text-atlas-muted">최근 / 저장됨</span>
+                </div>
+                <div id="saved-query-list" class="mt-3 grid gap-2"></div>
+              </div>
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
+                <div class="flex items-center justify-between">
+                  <p class="section-subtitle">최근 실행 쿼리</p>
+                  <span class="text-xs text-atlas-muted">사용자별</span>
+                </div>
+                <div id="recent-query-list" class="mt-3 grid gap-2"></div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <aside class="glass-card p-4">
+          <div class="section-title">
+            <h2>안전 정책 / Explain / 감사</h2>
+            <p>조회 제한과 위험 탐지 결과를 표면에 드러냅니다.</p>
+          </div>
+
+          <div class="mt-4 grid gap-3">
+            <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
+              <p class="section-subtitle">허용 / 차단 명령</p>
+              <div class="mt-3 grid gap-3 md:grid-cols-2">
+                <div>
+                  <p class="text-xs text-emerald-300">허용</p>
+                  <ul class="mt-2 space-y-1 text-sm text-slate-200">
+                    <li>find</li>
+                    <li>aggregate</li>
+                    <li>countDocuments</li>
+                  </ul>
+                </div>
+                <div>
+                  <p class="text-xs text-rose-300">차단</p>
+                  <ul class="mt-2 space-y-1 text-sm text-slate-200">
+                    <li>insert / update / delete</li>
+                    <li>drop / createIndex / repairDatabase</li>
+                    <li>limit 없는 무제한 조회</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
+              <div class="flex items-center justify-between">
+                <p class="section-subtitle">Explain 결과</p>
+                <span id="explain-grade" class="status-pill status-pill--unknown">Unknown</span>
+              </div>
+              <pre id="explain-output" class="mt-3 whitespace-pre-wrap rounded-2xl border border-white/10 bg-slate-950/50 p-3 text-sm text-slate-200"></pre>
+            </div>
+
+            <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
+              <div class="flex items-center justify-between">
+                <p class="section-subtitle">감사 로그</p>
+                <span class="text-xs text-atlas-muted">최근 5건</span>
+              </div>
+              <div id="audit-log-list" class="mt-3 grid gap-2"></div>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="glass-card p-4">
+        <div class="section-title">
+          <h2>로그 조회 결과</h2>
+          <p>페이지네이션, JSON 상세보기, CSV 다운로드, 긴 텍스트 확장 처리까지 포함합니다.</p>
+        </div>
+
+        <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <div class="text-sm text-atlas-muted">
+            <span id="result-summary">0건 조회</span>
+            <span class="mx-2 text-white/30">|</span>
+            <span id="query-latency">실행 시간 -</span>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="prev-page" class="atlas-btn atlas-btn--ghost atlas-btn--xs">이전</button>
+            <span id="page-indicator" class="rounded-full border border-white/10 px-3 py-1 text-sm text-atlas-muted">1 / 1</span>
+            <button id="next-page" class="atlas-btn atlas-btn--ghost atlas-btn--xs">다음</button>
+          </div>
+        </div>
+
+        <div class="mt-4 overflow-hidden rounded-3xl border border-white/10">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-white/10 text-left">
+              <thead class="bg-slate-950/70 text-xs uppercase tracking-[0.2em] text-atlas-muted">
+                <tr>
+                  <th class="px-4 py-3">timestamp</th>
+                  <th class="px-4 py-3">level</th>
+                  <th class="px-4 py-3">fab</th>
+                  <th class="px-4 py-3">equipmentId</th>
+                  <th class="px-4 py-3">lotId</th>
+                  <th class="px-4 py-3">message</th>
+                  <th class="px-4 py-3">source</th>
+                </tr>
+              </thead>
+              <tbody id="result-table" class="divide-y divide-white/10 bg-slate-950/35"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="empty-state" class="hidden rounded-3xl border border-dashed border-white/15 bg-slate-950/25 p-10 text-center text-sm text-atlas-muted">
+          조회된 로그 데이터가 없습니다.
+          <br />
+          시간 범위 또는 필터 조건을 변경해 다시 조회해 주세요.
+        </div>
+      </section>
+    </main>
+
+    <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+
+    <div id="confirm-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">
+      <div class="modal__backdrop"></div>
+      <div class="modal__panel">
+        <h3 id="confirm-modal-title" class="text-xl font-semibold text-white">작업 확인</h3>
+        <div class="mt-3 space-y-3 text-sm text-slate-200">
+          <p><strong>대상 Fab:</strong> <span id="confirm-fab"></span></p>
+          <p><strong>현재 수집기 상태:</strong> <span id="confirm-current-state"></span></p>
+          <p><strong>수행 작업:</strong> <span id="confirm-action"></span></p>
+          <p><strong>예상 영향:</strong> <span id="confirm-impact"></span></p>
+        </div>
+        <div class="mt-4">
+          <label class="block">
+            <span class="mb-1 block text-xs uppercase tracking-[0.2em] text-atlas-muted">사유 입력</span>
+            <textarea id="confirm-reason" rows="3" class="atlas-textarea"></textarea>
+          </label>
+        </div>
+        <div class="mt-5 flex justify-end gap-2">
+          <button id="cancel-confirm" class="atlas-btn atlas-btn--ghost">취소</button>
+          <button id="submit-confirm" class="atlas-btn atlas-btn--primary">실행</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="json-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="json-modal-title">
+      <div class="modal__backdrop"></div>
+      <div class="modal__panel modal__panel--wide">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h3 id="json-modal-title" class="text-xl font-semibold text-white">JSON 상세보기</h3>
+            <p id="json-modal-subtitle" class="mt-1 text-sm text-atlas-muted">선택한 로그 원본</p>
+          </div>
+          <div class="flex gap-2">
+            <button id="copy-json" class="atlas-btn atlas-btn--ghost">전체 복사</button>
+            <button id="close-json" class="atlas-btn atlas-btn--primary">닫기</button>
+          </div>
+        </div>
+        <pre id="json-view" class="atlas-json-view mt-4"></pre>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

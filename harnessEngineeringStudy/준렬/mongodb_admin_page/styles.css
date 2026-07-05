@@ -1,0 +1,433 @@
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+.glass-card {
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 1.5rem;
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, 0.78), rgba(8, 15, 28, 0.9));
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.section-title h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #f8fbff;
+}
+
+.section-title p {
+  margin-top: 0.2rem;
+  font-size: 0.82rem;
+  color: rgba(147, 164, 186, 0.92);
+}
+
+.section-subtitle {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(155, 178, 204, 0.95);
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: 999px;
+  padding: 0.38rem 0.8rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.status-pill::before {
+  content: "";
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: currentColor;
+  box-shadow: 0 0 10px currentColor;
+}
+
+.status-pill--ok {
+  color: #7ef0c6;
+  background: rgba(45, 212, 191, 0.1);
+}
+
+.status-pill--warn {
+  color: #fde68a;
+  background: rgba(251, 191, 36, 0.12);
+}
+
+.status-pill--danger {
+  color: #ff9db0;
+  background: rgba(251, 113, 133, 0.12);
+}
+
+.status-pill--unknown {
+  color: #cbd5e1;
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.status-dot {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 999px;
+  background: #cbd5e1;
+  box-shadow: 0 0 0 0.2rem rgba(148, 163, 184, 0.12);
+}
+
+.status-dot.is-ok {
+  background: #2dd4bf;
+  box-shadow: 0 0 0 0.2rem rgba(45, 212, 191, 0.12);
+}
+
+.status-dot.is-warn {
+  background: #fbbf24;
+  box-shadow: 0 0 0 0.2rem rgba(251, 191, 36, 0.12);
+}
+
+.status-dot.is-danger {
+  background: #fb7185;
+  box-shadow: 0 0 0 0.2rem rgba(251, 113, 133, 0.12);
+}
+
+.mini-metric {
+  min-width: 11rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.55);
+  padding: 0.7rem 0.85rem;
+}
+
+.mini-metric__label {
+  display: block;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(147, 164, 186, 0.9);
+}
+
+.mini-metric__value {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #f8fbff;
+}
+
+.atlas-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.72rem 1rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #edf4ff;
+  transition:
+    transform 0.16s ease,
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    opacity 0.16s ease;
+}
+
+.atlas-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.atlas-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.atlas-btn--primary {
+  background: linear-gradient(180deg, rgba(45, 212, 191, 0.95), rgba(20, 184, 166, 0.92));
+  color: #04111b;
+}
+
+.atlas-btn--secondary {
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.2), rgba(37, 99, 235, 0.14));
+  color: #dff5ff;
+}
+
+.atlas-btn--ghost {
+  background: rgba(15, 23, 42, 0.28);
+}
+
+.atlas-btn--success {
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.96), rgba(22, 163, 74, 0.88));
+  color: #03120a;
+}
+
+.atlas-btn--danger {
+  background: linear-gradient(180deg, rgba(251, 113, 133, 0.96), rgba(225, 29, 72, 0.88));
+  color: #1b0710;
+}
+
+.atlas-btn--warning {
+  background: linear-gradient(180deg, rgba(251, 191, 36, 0.96), rgba(245, 158, 11, 0.88));
+  color: #261600;
+}
+
+.atlas-btn--xs {
+  padding: 0.48rem 0.74rem;
+  font-size: 0.76rem;
+}
+
+.atlas-tab {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(15, 23, 42, 0.45);
+  padding: 0.55rem 1rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: rgba(229, 239, 252, 0.9);
+}
+
+.atlas-tab.is-active {
+  background: linear-gradient(180deg, rgba(88, 198, 255, 0.24), rgba(14, 165, 233, 0.1));
+  border-color: rgba(56, 189, 248, 0.32);
+  color: #effbff;
+  box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.14);
+}
+
+.atlas-input,
+.atlas-select,
+.atlas-textarea,
+.atlas-editor {
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.55);
+  color: #eef4fb;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.atlas-input,
+.atlas-select {
+  height: 2.85rem;
+  padding: 0.7rem 0.9rem;
+}
+
+.atlas-textarea {
+  min-height: 6.5rem;
+  padding: 0.85rem 0.95rem;
+  resize: vertical;
+}
+
+.atlas-editor {
+  min-height: 18rem;
+  padding: 1rem;
+  font-family:
+    "SFMono-Regular", ui-monospace, "Cascadia Code", "Source Code Pro", Menlo,
+    Consolas, monospace;
+  font-size: 0.86rem;
+  line-height: 1.6;
+  tab-size: 2;
+  white-space: pre;
+}
+
+.atlas-input:focus,
+.atlas-select:focus,
+.atlas-textarea:focus,
+.atlas-editor:focus {
+  border-color: rgba(88, 198, 255, 0.5);
+  box-shadow: 0 0 0 3px rgba(88, 198, 255, 0.14);
+}
+
+.time-chip {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(15, 23, 42, 0.38);
+  padding: 0.58rem 0.92rem;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: rgba(229, 239, 252, 0.88);
+}
+
+.time-chip.is-active {
+  background: linear-gradient(180deg, rgba(88, 198, 255, 0.24), rgba(14, 165, 233, 0.1));
+  border-color: rgba(56, 189, 248, 0.32);
+}
+
+.time-chip--small {
+  padding: 0.42rem 0.72rem;
+  font-size: 0.8rem;
+}
+
+.metric-title {
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(147, 164, 186, 0.95);
+}
+
+.metric-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.metric-trend {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #8bd9ff;
+}
+
+.metric-bar {
+  margin-top: 0.8rem;
+  height: 0.6rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.16);
+}
+
+.metric-bar span {
+  display: block;
+  height: 100%;
+  width: 0%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(88, 198, 255, 0.95), rgba(45, 212, 191, 0.88));
+  transition: width 0.35s ease;
+}
+
+.grafana-frame-wrap {
+  min-height: 28rem;
+}
+
+.grafana-frame {
+  width: 100%;
+  height: 28rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1.4rem;
+  background: #050b14;
+}
+
+.atlas-json-view {
+  max-height: 31rem;
+  overflow: auto;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(2, 6, 23, 0.8);
+  padding: 1rem;
+  color: #e5eef8;
+  font-size: 0.86rem;
+  line-height: 1.7;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.7);
+  backdrop-filter: blur(8px);
+}
+
+.modal__panel {
+  position: relative;
+  z-index: 1;
+  width: min(36rem, calc(100vw - 2rem));
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(3, 7, 18, 0.98));
+  padding: 1.25rem;
+  box-shadow: 0 30px 120px rgba(0, 0, 0, 0.55);
+}
+
+.modal__panel--wide {
+  width: min(58rem, calc(100vw - 2rem));
+}
+
+.toast-region {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 80;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.toast {
+  min-width: 18rem;
+  max-width: 28rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(8, 15, 28, 0.94);
+  padding: 0.9rem 1rem;
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.38);
+}
+
+.toast__title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #f8fbff;
+}
+
+.toast__message {
+  margin-top: 0.25rem;
+  font-size: 0.82rem;
+  color: rgba(207, 220, 235, 0.92);
+}
+
+@media (max-width: 1024px) {
+  .grafana-frame,
+  .grafana-frame-wrap {
+    min-height: 22rem;
+  }
+
+  .grafana-frame {
+    height: 22rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .atlas-btn,
+  .atlas-tab,
+  .time-chip {
+    width: 100%;
+  }
+
+  .toast-region {
+    left: 1rem;
+    right: 1rem;
+  }
+
+  .toast {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+}
