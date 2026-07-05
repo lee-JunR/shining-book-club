@@ -1,0 +1,34 @@
+# AI Agent markdown files
+*gemini*.md
+*claude*.md
+*codex*.md
+*GEMINI*.md
+*CLAUDE*.md
+*CODEX*.md
+
+# Dependency directories
+node_modules/
+
+# Build outputs and caches
+dist/
+tmp/
+.npm-cache/
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
+
+# IDE / Editor configuration
+.cursor/
+.vscode/
+.idea/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
