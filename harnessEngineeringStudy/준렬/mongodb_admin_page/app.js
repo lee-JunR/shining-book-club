@@ -458,10 +458,20 @@ function attachEvents() {
 function renderFabTabs() {
   const accessibleFabs = FABS.filter((fabId) => USER.permittedFabs.includes(fabId));
   dom.fabTabs.innerHTML = accessibleFabs
-    .map(
-      (fabId) =>
-        `<button class="atlas-tab ${fabId === state.fabId ? "is-active" : ""}" data-fab-id="${fabId}">${fabId}</button>`,
-    )
+    .map((fabId) => {
+      const config = FAB_CONFIG[fabId];
+      const severity = resolveSeverity(config).service;
+      const dotClass = severity === "ok" ? "is-ok" : severity === "danger" ? "is-danger" : severity === "warn" ? "is-warn" : "";
+      return `
+        <button class="atlas-tab ${fabId === state.fabId ? "is-active" : ""}" data-fab-id="${fabId}">
+          <span class="inline-flex items-center gap-2">
+            <span class="status-dot ${dotClass}"></span>
+            ${fabId}
+          </span>
+          <span class="text-gray-400">x</span>
+        </button>
+      `;
+    })
     .join("");
 }
 
@@ -481,15 +491,15 @@ function renderTemplates() {
   dom.templateList.innerHTML = TEMPLATES.map((template) => {
     const query = escapeHtml(JSON.stringify(template.query, null, 2));
     return `
-      <button class="rounded-2xl border border-white/10 bg-slate-950/35 p-3 text-left transition hover:border-cyan-400/30 hover:bg-slate-900/65" data-template-id="${template.id}">
+      <button class="template-item" data-template-id="${template.id}">
         <div class="flex items-start justify-between gap-3">
           <div>
-            <p class="font-semibold text-slate-100">${template.label}</p>
-            <p class="mt-1 text-xs text-atlas-muted">${template.description}</p>
+            <p class="font-semibold text-gray-800">${template.label}</p>
+            <p class="mt-1 text-xs text-gray-500">${template.description}</p>
           </div>
-          <span class="rounded-full border border-white/10 px-2 py-1 text-[11px] uppercase tracking-[0.18em] text-cyan-100">Preset</span>
+          <span class="rounded border border-blue-100 bg-blue-50 px-1.5 py-0.5 text-[11px] font-bold text-blue-700">Preset</span>
         </div>
-        <pre class="mt-3 max-h-28 overflow-auto rounded-xl border border-white/5 bg-black/20 p-2 text-[11px] leading-5 text-slate-300">${query}</pre>
+        <pre class="mt-2 max-h-20 overflow-auto rounded bg-gray-50 p-2 text-[11px] leading-5 text-gray-500">${query}</pre>
       </button>
     `;
   }).join("");
@@ -498,8 +508,8 @@ function renderTemplates() {
 function renderLevelFilters() {
   dom.levelFilterGroup.innerHTML = LEVELS.map((level) => {
     const active = state.levelFilters.has(level);
-    const className = active ? "atlas-btn atlas-btn--xs atlas-btn--primary" : "atlas-btn atlas-btn--xs atlas-btn--ghost";
-    return `<button class="${className}" data-level="${level}">${level}</button>`;
+    const className = active ? "level-chip is-active" : "level-chip";
+    return `<button class="${className}" data-level="${level}"><span class="level-check"></span>${level}</button>`;
   }).join("");
 }
 
@@ -519,14 +529,19 @@ function renderSummary() {
 }
 
 function summaryCard(title, value, stateClass, caption = "", badgeText = healthLabel(stateClass)) {
+  const cardClass = stateClass === "danger" ? "summary-card is-danger" : stateClass === "warn" ? "summary-card is-warn" : "summary-card";
+  const dotClass = stateClass === "danger" ? "is-danger" : stateClass === "warn" ? "is-warn" : stateClass === "ok" ? "is-ok" : "";
   return `
-    <div class="rounded-2xl border border-white/10 bg-white/5 p-4 ${stateClass === "danger" ? "ring-1 ring-rose-500/20" : stateClass === "warn" ? "ring-1 ring-amber-500/20" : ""}">
-      <p class="text-xs uppercase tracking-[0.18em] text-atlas-muted">${title}</p>
-      <div class="mt-2 flex items-end justify-between gap-3">
-        <strong class="text-2xl font-bold text-white">${escapeHtml(value)}</strong>
+    <div class="${cardClass}">
+      <span class="summary-label">${title}</span>
+      <div class="summary-value">
+        <span class="status-dot ${dotClass}"></span>
+        <span>${escapeHtml(value)}</span>
+      </div>
+      <div class="mt-1 flex items-center justify-between gap-2">
+        <span class="summary-caption">${escapeHtml(caption)}</span>
         <span class="status-pill ${pillClass(stateClass)}">${escapeHtml(badgeText)}</span>
       </div>
-      <p class="mt-2 text-sm text-atlas-muted">${escapeHtml(caption)}</p>
     </div>
   `;
 }
@@ -537,8 +552,10 @@ function renderGNB() {
   dom.mongoStatusLabel.textContent = config.mongo;
   dom.collectorStatusLabel.textContent = config.collector;
   dom.collectorStateText.textContent = config.collector;
-  dom.serviceBadge.className = `status-pill ${pillClass(resolveSeverity(config).service)}`;
-  dom.serviceBadge.textContent = config.mongo === "Connected" ? "Connected" : config.mongo;
+  const serviceSeverity = resolveSeverity(config).service;
+  dom.serviceBadge.className = `status-dot ${serviceSeverity === "ok" ? "is-ok" : serviceSeverity === "danger" ? "is-danger" : serviceSeverity === "warn" ? "is-warn" : ""}`;
+  dom.mongoStatusLabel.className =
+    config.mongo === "Connected" ? "text-emerald-300" : config.mongo === "Disconnected" ? "text-red-300" : "text-slate-300";
   syncCollectorIndicator();
 }
 
@@ -765,17 +782,17 @@ function summarizeTimeRange(range) {
 function renderSavedQueries() {
   if (STORAGE.savedQueries.length === 0) {
     dom.savedQueryList.innerHTML =
-      '<div class="rounded-2xl border border-dashed border-white/15 bg-slate-950/20 p-4 text-sm text-atlas-muted">저장된 쿼리가 없습니다.</div>';
+      '<div class="rounded border border-dashed border-gray-300 bg-gray-50 p-3 text-sm text-gray-500">저장된 쿼리가 없습니다.</div>';
     return;
   }
   dom.savedQueryList.innerHTML = STORAGE.savedQueries.map((entry) => {
     return `
-      <button class="rounded-2xl border border-white/10 bg-slate-950/35 p-3 text-left hover:border-cyan-400/30" data-saved-query-id="${entry.id}">
+      <button class="query-list-item" data-saved-query-id="${entry.id}">
         <div class="flex items-center justify-between gap-3">
-          <strong class="text-sm text-slate-100">${escapeHtml(entry.name)}</strong>
-          <span class="text-[11px] text-atlas-muted">${escapeHtml(entry.fabId)}</span>
+          <strong class="text-sm text-gray-800">${escapeHtml(entry.name)}</strong>
+          <span class="text-[11px] text-gray-500">${escapeHtml(entry.fabId)}</span>
         </div>
-        <p class="mt-1 line-clamp-2 text-xs text-atlas-muted">${escapeHtml(shorten(entry.queryText, 120))}</p>
+        <p class="mt-1 line-clamp-2 text-xs text-gray-500">${escapeHtml(shorten(entry.queryText, 120))}</p>
       </button>
     `;
   }).join("");
@@ -784,17 +801,17 @@ function renderSavedQueries() {
 function renderRecentQueries() {
   if (STORAGE.recentQueries.length === 0) {
     dom.recentQueryList.innerHTML =
-      '<div class="rounded-2xl border border-dashed border-white/15 bg-slate-950/20 p-4 text-sm text-atlas-muted">최근 실행 쿼리가 없습니다.</div>';
+      '<div class="rounded border border-dashed border-gray-300 bg-white p-3 text-sm text-gray-500">최근 실행 쿼리가 없습니다.</div>';
     return;
   }
   dom.recentQueryList.innerHTML = STORAGE.recentQueries.slice(0, 6).map((entry, index) => {
     return `
-      <button class="rounded-2xl border border-white/10 bg-slate-950/35 p-3 text-left hover:border-emerald-400/30" data-recent-query-index="${index}">
+      <button class="query-list-item" data-recent-query-index="${index}">
         <div class="flex items-center justify-between gap-3">
-          <strong class="text-sm text-slate-100">${escapeHtml(entry.operation || "find")}</strong>
-          <span class="text-[11px] text-atlas-muted">${escapeHtml(entry.timeLabel)}</span>
+          <strong class="text-sm text-gray-800">${escapeHtml(entry.operation || "find")}</strong>
+          <span class="text-[11px] text-gray-500">${escapeHtml(entry.timeLabel)}</span>
         </div>
-        <p class="mt-1 line-clamp-2 text-xs text-atlas-muted">${escapeHtml(shorten(entry.queryText, 120))}</p>
+        <p class="mt-1 line-clamp-2 text-xs text-gray-500">${escapeHtml(shorten(entry.queryText, 120))}</p>
       </button>
     `;
   }).join("");
@@ -804,19 +821,19 @@ function renderAuditLogs() {
   const items = STORAGE.auditLogs.slice(0, 5);
   if (items.length === 0) {
     dom.auditLogList.innerHTML =
-      '<div class="rounded-2xl border border-dashed border-white/15 bg-slate-950/20 p-4 text-sm text-atlas-muted">아직 감사 로그가 없습니다.</div>';
+      '<div class="rounded border border-dashed border-gray-300 bg-white p-3 text-sm text-gray-500">아직 감사 로그가 없습니다.</div>';
     return;
   }
   dom.auditLogList.innerHTML = items.map((entry) => {
     const badgeClass =
       entry.outcome === "success" ? "status-pill--ok" : entry.outcome === "warning" ? "status-pill--warn" : "status-pill--danger";
     return `
-      <div class="rounded-2xl border border-white/10 bg-slate-950/35 p-3 text-sm">
+      <div class="audit-item text-sm">
         <div class="flex items-center justify-between gap-3">
-          <strong class="text-slate-100">${escapeHtml(entry.type)}</strong>
+          <strong class="text-gray-800">${escapeHtml(entry.type)}</strong>
           <span class="status-pill ${badgeClass}">${escapeHtml(entry.outcome)}</span>
         </div>
-        <p class="mt-1 text-xs text-atlas-muted">${escapeHtml(entry.summary)}</p>
+        <p class="mt-1 text-xs text-gray-500">${escapeHtml(entry.summary)}</p>
       </div>
     `;
   }).join("");
@@ -1141,17 +1158,17 @@ function renderTable() {
     .map((row, index) => {
       const rowIndex = start + index;
       return `
-        <tr class="cursor-pointer hover:bg-slate-900/70" data-row-index="${rowIndex}">
-          <td class="px-4 py-3 whitespace-nowrap text-sm text-slate-100">${formatDateTime(row.timestamp)}</td>
+        <tr class="cursor-pointer transition hover:bg-blue-50" data-row-index="${rowIndex}">
+          <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-600">${formatDateTime(row.timestamp)}</td>
           <td class="px-4 py-3">${levelBadge(row.level)}</td>
-          <td class="px-4 py-3 whitespace-nowrap text-sm text-slate-200">${escapeHtml(row.fab)}</td>
-          <td class="px-4 py-3 whitespace-nowrap text-sm text-slate-200">${escapeHtml(row.equipmentId)}</td>
-          <td class="px-4 py-3 whitespace-nowrap text-sm text-slate-200">${escapeHtml(row.lotId)}</td>
-          <td class="px-4 py-3 text-sm text-slate-200">
-            <button class="max-w-[56rem] truncate text-left hover:text-cyan-200" data-open-row="${rowIndex}">${escapeHtml(row.message)}</button>
-            ${row.stackTrace ? `<div class="mt-1 max-w-[56rem] truncate text-xs text-atlas-muted">${escapeHtml(row.stackTrace)}</div>` : ""}
+          <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">${escapeHtml(row.fab)}</td>
+          <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-800">${escapeHtml(row.equipmentId)}</td>
+          <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">${escapeHtml(row.lotId)}</td>
+          <td class="px-4 py-2 text-sm text-gray-800">
+            <button class="max-w-xl truncate text-left hover:text-blue-700" data-open-row="${rowIndex}">${escapeHtml(row.message)}</button>
+            ${row.stackTrace ? `<div class="mt-1 max-w-xl truncate text-xs text-gray-400">${escapeHtml(row.stackTrace)}</div>` : ""}
           </td>
-          <td class="px-4 py-3 whitespace-nowrap text-sm text-atlas-muted">${escapeHtml(row.source)}</td>
+          <td class="px-4 py-2 whitespace-nowrap text-xs text-gray-500">${escapeHtml(row.source)}</td>
         </tr>
       `;
     })
@@ -1169,13 +1186,13 @@ function renderTable() {
 function levelBadge(level) {
   const className =
     level === "ERROR"
-      ? "status-pill--danger"
+      ? "rounded border border-red-200 bg-red-100 px-2 py-0.5 text-xs font-bold text-red-700"
       : level === "WARN"
-        ? "status-pill--warn"
+        ? "rounded border border-yellow-200 bg-yellow-100 px-2 py-0.5 text-xs font-bold text-yellow-700"
         : level === "INFO"
-          ? "status-pill--ok"
-          : "status-pill--unknown";
-  return `<span class="status-pill ${className}">${escapeHtml(level)}</span>`;
+          ? "rounded border border-blue-200 bg-blue-100 px-2 py-0.5 text-xs font-bold text-blue-700"
+          : "rounded border border-gray-200 bg-gray-100 px-2 py-0.5 text-xs font-bold text-gray-700";
+  return `<span class="${className}">${escapeHtml(level)}</span>`;
 }
 
 function openJsonModal(row) {
@@ -1225,31 +1242,33 @@ function closeCollectorConfirm() {
 
 function submitCollectorAction() {
   if (!state.pendingCollectorAction) return;
+  const action = state.pendingCollectorAction;
+  const fabId = state.pendingCollectorFab;
   const reason = (dom.confirmReason.value || "").trim();
-  if (state.pendingCollectorAction !== "start" && reason.length === 0) {
+  if (action !== "start" && reason.length === 0) {
     setQueryMessage("Stop / Restart에는 사유 입력이 권장됩니다. 사유 없이 진행하지 않았습니다.", "warning");
     showToast("사유 필요", "Stop / Restart는 사유를 입력해 주세요.", "warning");
     return;
   }
 
-  const prev = FAB_CONFIG[state.pendingCollectorFab].collector;
+  const prev = FAB_CONFIG[fabId].collector;
   const next =
-    state.pendingCollectorAction === "start"
+    action === "start"
       ? "Running"
-      : state.pendingCollectorAction === "stop"
+      : action === "stop"
         ? "Stopped"
         : "Running";
-  FAB_CONFIG[state.pendingCollectorFab].collector = next;
+  FAB_CONFIG[fabId].collector = next;
   state.collector.status = next;
   dom.collectorReason.value = reason;
   closeCollectorConfirm();
   renderGNB();
   renderSummary();
   syncCollectorIndicator();
-  showToast("수집기 작업", `${state.pendingCollectorAction.toUpperCase()} 작업을 반영했습니다.`, "success");
+  showToast("수집기 작업", `${action.toUpperCase()} 작업을 반영했습니다.`, "success");
   logAudit("collector", {
-    action: state.pendingCollectorAction,
-    fabId: state.pendingCollectorFab,
+    action,
+    fabId,
     outcome: "success",
     summary: `${prev} -> ${next}`,
     reason,
@@ -1269,9 +1288,18 @@ function syncCollectorIndicator() {
   dom.collectorStatusLabel.textContent = collector;
   dom.collectorStateText.textContent = collector;
   dom.collectorIndicator.className = "status-dot";
-  if (collector === "Running") dom.collectorIndicator.classList.add("is-ok");
-  else if (collector === "Stopped") dom.collectorIndicator.classList.add("is-warn");
-  else if (collector === "Error") dom.collectorIndicator.classList.add("is-danger");
+  if (collector === "Running") {
+    dom.collectorIndicator.classList.add("is-ok");
+    dom.collectorStatusLabel.className = "text-emerald-300";
+  } else if (collector === "Stopped") {
+    dom.collectorIndicator.classList.add("is-warn");
+    dom.collectorStatusLabel.className = "text-amber-300";
+  } else if (collector === "Error") {
+    dom.collectorIndicator.classList.add("is-danger");
+    dom.collectorStatusLabel.className = "text-red-300";
+  } else {
+    dom.collectorStatusLabel.className = "text-slate-300";
+  }
 }
 
 function downloadCsv() {
@@ -1382,13 +1410,13 @@ function renderExplain(result) {
 function setQueryMessage(message, level = "info") {
   const palette =
     level === "error"
-      ? "border-rose-400/20 bg-rose-500/10 text-rose-100"
+      ? "border-red-200 bg-red-50 text-red-700"
       : level === "warning"
-        ? "border-amber-400/20 bg-amber-500/10 text-amber-50"
+        ? "border-amber-200 bg-amber-50 text-amber-800"
         : level === "success"
-          ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-50"
-          : "border-cyan-400/15 bg-cyan-400/10 text-cyan-50";
-  dom.queryMessage.className = `mt-2 rounded-2xl border p-3 text-sm ${palette}`;
+          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+          : "border-blue-200 bg-blue-50 text-blue-700";
+  dom.queryMessage.className = `mt-2 rounded border px-3 py-2 text-sm ${palette}`;
   dom.queryMessage.textContent = message;
 }
 
