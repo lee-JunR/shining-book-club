@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart ATLAS MongoDB Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="min-h-screen bg-gray-100 text-gray-800">
+    <header class="sticky top-0 z-40 flex min-h-14 items-center justify-between gap-4 bg-slate-800 px-4 py-3 text-white shadow-md">
+      <div class="flex min-w-0 items-center gap-4">
+        <div class="flex items-center gap-2 pr-2">
+          <svg class="h-6 w-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+          </svg>
+          <div class="leading-tight">
+            <h1 class="text-lg font-bold">Smart ATLAS</h1>
+            <p class="hidden text-xs text-slate-300 sm:block">MongoDB Admin</p>
+          </div>
+        </div>
+
+        <nav class="hidden items-center gap-1 md:flex" aria-label="Main navigation">
+          <a href="#" class="inline-flex items-center gap-1.5 rounded bg-blue-600 px-3 py-2 text-sm font-bold text-white shadow-sm">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+            </svg>
+            대시보드
+          </a>
+          <a href="#query-panel" class="inline-flex items-center gap-1.5 rounded px-3 py-2 text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            쿼리 탐색기
+          </a>
+        </nav>
+
+        <div class="hidden h-6 w-px bg-slate-600 md:block"></div>
+
+        <div class="hidden items-center gap-2 md:flex">
+          <span class="text-xs font-semibold text-slate-400">수집기 제어</span>
+          <div class="inline-flex rounded shadow-sm" role="group" aria-label="Collector controls">
+            <button type="button" data-collector-action="start" class="collector-menu-btn rounded-l border border-slate-600 text-emerald-300" title="Start collector">
+              <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+              </svg>
+              Start
+            </button>
+            <button type="button" data-collector-action="stop" class="collector-menu-btn border-y border-r border-slate-600 text-red-300" title="Stop collector">
+              <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd" />
+              </svg>
+              Stop
+            </button>
+            <button type="button" data-collector-action="restart" class="collector-menu-btn rounded-r border-y border-r border-slate-600 text-slate-100" title="Restart collector">
+              <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Restart
+            </button>
+          </div>
+          <button id="refresh-collector" class="collector-icon-btn" title="Refresh collector status">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex shrink-0 items-center gap-3 text-sm">
+        <div class="hidden items-center gap-3 rounded-full border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-medium lg:flex">
+          <span class="inline-flex items-center gap-1.5" title="DB connection">
+            <span id="service-badge" class="status-dot is-ok"></span>
+            <span id="mongo-status-label" class="text-emerald-300">Connected</span>
+          </span>
+          <span class="h-3 w-px bg-slate-600"></span>
+          <span class="inline-flex items-center gap-1.5" title="Collector status">
+            <span id="collector-indicator" class="status-dot is-ok"></span>
+            <span id="collector-status-label" class="text-emerald-300">Running</span>
+          </span>
+        </div>
+        <span id="refresh-note" class="hidden text-xs text-slate-400 xl:block">마지막 갱신: -</span>
+        <strong id="clock-label" class="hidden text-xs text-slate-300 sm:block">--:--:--</strong>
+        <button class="inline-flex items-center gap-1 text-slate-200 hover:text-blue-300">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          <span id="user-label">Admin</span>
+        </button>
+      </div>
+    </header>
+
+    <div id="fab-tabs" class="fab-tabbar sticky top-14 z-30"></div>
+
+    <main class="space-y-4 p-4">
+      <section id="summary-grid" class="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-8"></section>
+
+      <section class="space-y-2">
+        <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <h2 class="inline-flex items-center gap-1.5 text-sm font-bold text-gray-700">
+            <svg class="h-4 w-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
+              <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
+            </svg>
+            리소스 & 성능 대시보드
+          </h2>
+          <div class="flex items-center gap-2 text-xs text-gray-500">
+            <span>자동 갱신</span>
+            <select id="refresh-interval" class="control-select w-24">
+              <option value="5">5초</option>
+              <option value="10">10초</option>
+              <option value="30" selected>30초</option>
+              <option value="60">1분</option>
+            </select>
+            <button id="manual-refresh" class="btn btn-secondary">새로고침</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <article class="grafana-card">
+            <div class="panel-title-row">
+              <span>CPU 사용률 추세</span>
+              <a id="grafana-detail-link" href="#" target="_blank" rel="noreferrer" class="panel-menu" title="Open Grafana">⋮</a>
+            </div>
+            <div class="metric-panel">
+              <div class="flex items-end justify-between">
+                <strong id="cpu-value" class="metric-value">--%</strong>
+                <span id="cpu-trend" class="metric-trend">+0.0%</span>
+              </div>
+              <div class="metric-bar"><span id="cpu-bar"></span></div>
+              <iframe id="grafana-frame" title="Grafana dashboard" class="sr-only" referrerpolicy="no-referrer"></iframe>
+            </div>
+          </article>
+
+          <article class="grafana-card">
+            <div class="panel-title-row">
+              <span>초당 처리량 (TPS)</span>
+              <button class="panel-menu" type="button" title="Panel menu">⋮</button>
+            </div>
+            <div class="metric-panel">
+              <div class="flex items-end justify-between">
+                <strong id="tps-value" class="metric-value">--/s</strong>
+                <span id="tps-trend" class="metric-trend">+0.0%</span>
+              </div>
+              <div class="metric-bar"><span id="tps-bar"></span></div>
+            </div>
+          </article>
+
+          <article class="grafana-card">
+            <div class="panel-title-row">
+              <span>Disk 사용 추세 (7일)</span>
+              <button class="panel-menu" type="button" title="Panel menu">⋮</button>
+            </div>
+            <div class="metric-panel">
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <p class="metric-label">Disk</p>
+                  <strong id="disk-value" class="metric-value">--%</strong>
+                  <div class="metric-bar"><span id="disk-bar"></span></div>
+                  <span id="disk-trend" class="metric-trend">+0.0%</span>
+                </div>
+                <div>
+                  <p class="metric-label">일일 증가량</p>
+                  <strong id="growth-value" class="metric-value">-- GB</strong>
+                  <div class="metric-bar"><span id="growth-bar"></span></div>
+                  <span id="growth-trend" class="metric-trend">+0.0%</span>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div id="grafana-frame-wrap" class="hidden"></div>
+        <div id="grafana-fallback" class="hidden rounded border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
+          <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div>
+              <strong id="grafana-status">Grafana Error</strong>
+              <span class="ml-2">인증 만료 또는 접근 제한을 확인하세요.</span>
+            </div>
+            <div class="flex gap-2">
+              <button id="grafana-retry" class="btn btn-secondary">새로고침</button>
+              <a id="grafana-direct-link" href="#" target="_blank" rel="noreferrer" class="btn btn-secondary">직접 이동</a>
+            </div>
+          </div>
+        </div>
+        <h3 id="grafana-title" class="sr-only">PTA6 / Overview</h3>
+      </section>
+
+      <section id="query-panel" class="rounded border border-gray-200 bg-white shadow-sm">
+        <div class="flex flex-col gap-3 rounded-t border-b bg-gray-50 px-4 py-3 md:flex-row md:items-center md:justify-between">
+          <div class="flex items-center gap-2">
+            <svg class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <h2 class="font-bold text-gray-800">로그 탐색기</h2>
+            <span id="current-fab-label" class="rounded bg-blue-50 px-2 py-0.5 text-xs font-bold text-blue-700">PTA6</span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3 text-sm">
+            <div class="inline-flex overflow-hidden rounded border border-gray-300 bg-white shadow-sm">
+              <button data-range="15m" class="time-chip">최근 15분</button>
+              <button data-range="1h" class="time-chip">최근 1시간</button>
+              <button data-range="today" class="time-chip">오늘</button>
+              <button data-range="custom" class="time-chip">직접 지정</button>
+            </div>
+            <span id="time-summary" class="text-xs text-gray-500">최근 15분</span>
+            <div id="level-filter-group" class="level-filter-group"></div>
+            <label class="flex items-center gap-1 text-xs text-gray-500">
+              Limit
+              <select class="control-select w-24" aria-label="Query limit">
+                <option>100</option>
+                <option>500</option>
+                <option selected>1000</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div id="custom-time-box" class="hidden grid gap-3 border-b bg-gray-50 px-4 py-3 md:grid-cols-2">
+          <label class="form-label">
+            시작
+            <input id="custom-start" type="datetime-local" class="control-input" />
+          </label>
+          <label class="form-label">
+            종료
+            <input id="custom-end" type="datetime-local" class="control-input" />
+          </label>
+        </div>
+
+        <div class="grid gap-0 xl:grid-cols-[280px_minmax(0,1fr)]">
+          <aside class="border-b bg-white p-4 xl:border-b-0 xl:border-r">
+            <div class="mb-2 flex items-center justify-between">
+              <h3 class="text-xs font-bold text-gray-600">쿼리 템플릿</h3>
+              <button id="format-json" class="text-xs font-medium text-blue-600 hover:text-blue-800">{} 자동 포맷팅</button>
+            </div>
+            <div id="template-list" class="space-y-2"></div>
+
+            <div class="mt-4 border-t pt-4">
+              <div class="mb-2 flex items-center justify-between">
+                <h3 class="text-xs font-bold text-gray-600">자주 쓰는 쿼리</h3>
+              </div>
+              <div id="saved-query-list" class="space-y-2"></div>
+              <div class="mt-3 flex gap-2">
+                <input id="saved-query-name" class="control-input" placeholder="저장명" />
+                <button id="save-query" class="btn btn-secondary shrink-0">저장</button>
+              </div>
+            </div>
+          </aside>
+
+          <div>
+            <div class="border-b bg-white p-4">
+              <textarea id="query-editor" spellcheck="false" class="code-editor" rows="5" placeholder='{"operation":"find","collection":"logs","filter":{},"limit":100}'></textarea>
+
+              <div class="mt-3 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div id="query-hint" class="inline-flex items-center gap-1 text-xs text-red-600">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  데이터 변경 명령어는 차단됩니다. Timeout: 10초
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <button id="explain-query" class="btn btn-secondary">Explain Plan</button>
+                  <button id="cancel-query" class="btn btn-secondary" disabled>취소</button>
+                  <button id="run-query" class="btn btn-primary">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    쿼리 실행
+                  </button>
+                </div>
+              </div>
+              <div id="query-message" class="mt-2 text-sm"></div>
+            </div>
+
+            <div class="grid border-b bg-gray-50 md:grid-cols-2">
+              <div class="border-b p-4 md:border-b-0 md:border-r">
+                <div class="mb-2 flex items-center justify-between">
+                  <h3 class="text-xs font-bold text-gray-600">최근 실행 쿼리</h3>
+                </div>
+                <div id="recent-query-list" class="space-y-2"></div>
+              </div>
+              <div class="p-4">
+                <div class="mb-2 flex items-center justify-between">
+                  <h3 class="text-xs font-bold text-gray-600">Explain / 감사 로그</h3>
+                  <span id="explain-grade" class="status-pill status-pill--unknown">Unknown</span>
+                </div>
+                <pre id="explain-output" class="explain-box"></pre>
+                <div id="audit-log-list" class="mt-3 space-y-2"></div>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-2 border-b bg-white px-4 py-2 md:flex-row md:items-center md:justify-between">
+              <div class="text-sm text-gray-600">
+                조회 결과: <strong id="result-summary" class="text-gray-900">0건 조회</strong>
+                <span id="query-latency" class="ml-2 text-xs text-gray-500">실행 시간 -</span>
+              </div>
+              <button id="download-csv" class="btn btn-success">
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                CSV 다운로드
+              </button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200 text-left text-sm">
+                <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+                  <tr>
+                    <th class="px-4 py-3 font-medium">Timestamp</th>
+                    <th class="px-4 py-3 font-medium">Level</th>
+                    <th class="px-4 py-3 font-medium">Fab</th>
+                    <th class="px-4 py-3 font-medium">Eqp ID</th>
+                    <th class="px-4 py-3 font-medium">Lot ID</th>
+                    <th class="px-4 py-3 font-medium">Message</th>
+                    <th class="px-4 py-3 font-medium">Source</th>
+                  </tr>
+                </thead>
+                <tbody id="result-table" class="divide-y divide-gray-200 bg-white"></tbody>
+              </table>
+            </div>
+
+            <div id="empty-state" class="hidden p-10 text-center text-sm text-gray-500">
+              조회된 로그 데이터가 없습니다.<br />
+              시간 범위 또는 필터 조건을 변경해 다시 조회해 주세요.
+            </div>
+
+            <div class="flex items-center justify-between rounded-b border-t bg-white px-4 py-3">
+              <span id="page-indicator" class="text-sm text-gray-500">1 / 1</span>
+              <div class="inline-flex rounded shadow-sm">
+                <button id="prev-page" class="pagination-btn rounded-l">Previous</button>
+                <button id="next-page" class="pagination-btn rounded-r border-l-0">Next</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <textarea id="collector-reason" class="hidden" aria-hidden="true"></textarea>
+      <strong id="collector-state-text" class="sr-only">Running</strong>
+    </main>
+
+    <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+
+    <div id="confirm-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">
+      <div class="modal__backdrop"></div>
+      <div class="modal__panel max-w-md">
+        <div class="flex items-center border-b px-6 py-4 text-red-600">
+          <svg class="mr-2 h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <h3 id="confirm-modal-title" class="text-lg font-bold">수집기 제어 확인</h3>
+        </div>
+        <div class="space-y-3 p-6 text-sm text-gray-700">
+          <p><strong id="confirm-fab" class="text-blue-600">PTA6</strong> Fab 수집기에 작업을 수행합니다.</p>
+          <dl class="grid grid-cols-[120px_minmax(0,1fr)] gap-y-2 rounded border bg-gray-50 p-3">
+            <dt class="text-gray-500">현재 상태</dt>
+            <dd id="confirm-current-state" class="font-medium text-gray-900"></dd>
+            <dt class="text-gray-500">작업</dt>
+            <dd id="confirm-action" class="font-medium text-gray-900"></dd>
+            <dt class="text-gray-500">예상 영향</dt>
+            <dd id="confirm-impact" class="font-medium text-gray-900"></dd>
+          </dl>
+          <label class="form-label">
+            작업 사유
+            <input id="confirm-reason" type="text" class="control-input" placeholder="예: 정기 점검, 네트워크 작업" />
+          </label>
+        </div>
+        <div class="flex justify-end gap-2 border-t bg-gray-50 px-6 py-4">
+          <button id="cancel-confirm" class="btn btn-secondary">취소</button>
+          <button id="submit-confirm" class="btn btn-danger">실행</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="json-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="json-modal-title">
+      <div class="modal__backdrop"></div>
+      <div class="modal__panel max-w-3xl">
+        <div class="flex items-center justify-between border-b px-6 py-4">
+          <div>
+            <h3 id="json-modal-title" class="text-lg font-bold text-gray-800">로그 상세 정보 (JSON)</h3>
+            <p id="json-modal-subtitle" class="mt-1 text-sm text-gray-500">선택한 로그 원본</p>
+          </div>
+          <button id="close-json" class="text-gray-400 hover:text-gray-700" title="Close">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="max-h-[70vh] overflow-auto bg-gray-50 p-6">
+          <pre id="json-view" class="json-view"></pre>
+        </div>
+        <div class="flex justify-end gap-2 border-t bg-gray-50 px-6 py-4">
+          <button id="copy-json" class="btn btn-secondary">클립보드 복사</button>
+          <button class="btn btn-primary" type="button" onclick="document.getElementById('json-modal').classList.add('hidden')">닫기</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
