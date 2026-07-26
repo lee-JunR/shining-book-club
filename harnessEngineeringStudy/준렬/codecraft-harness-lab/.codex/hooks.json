@@ -1,0 +1,30 @@
+{
+  "description": "Code Craft validation hooks for this repository.",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "^(apply_patch|Edit|Write)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(git rev-parse --show-toplevel)/harnessEngineeringStudy/준렬/codecraft-harness-lab/.codex/hooks/run-tests-after-edit.sh\"",
+            "timeout": 120,
+            "statusMessage": "Running Code Craft tests"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(git rev-parse --show-toplevel)/harnessEngineeringStudy/준렬/codecraft-harness-lab/.codex/hooks/block-stop-without-tests.sh\"",
+            "timeout": 30,
+            "statusMessage": "Checking test verification"
+          }
+        ]
+      }
+    ]
+  }
+}

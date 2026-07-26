@@ -1,0 +1,4 @@
+interface:
+  display_name: "Code Craft Harness"
+  short_description: "Structure Code Craft tasks before implementation"
+  default_prompt: "Use $codecraft-harness to structure and implement this Code Craft task."
